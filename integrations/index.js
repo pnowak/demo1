@@ -1,11 +1,11 @@
-import HighchartsWrapper from './wrappers/highchartsWrapper';
-import AmChartsWrapper from './wrappers/amChartsWrapper';
-import ChartJsWrapper from './wrappers/chartJsWrapper';
-import FusionChartsWrapper from './wrappers/fusionChartsWrapper';
-
-const SELECTED_CLASS = 'selected';
+import HighchartsWrapper from './highcharts';
+import AmChartsWrapper from './amCharts';
+import ChartJsWrapper from './chartJs';
+import FusionChartsWrapper from './fusionCharts';
 
 const chartWrappers = [];
+const selectedClass = 'selected';
+const controls = document.getElementById('controls');
 const mapChartsToWrapper = new Map();
 
 mapChartsToWrapper.set('Highcharts', HighchartsWrapper);
@@ -18,7 +18,7 @@ function onAfterInit() {
   const allListItems = Array.from(isListItem);
 
   allListItems.forEach((li) => {
-    if (Handsontable.dom.hasClass(li, SELECTED_CLASS)) {
+    if (Handsontable.dom.hasClass(li, selectedClass)) {
       const chartName = li.children[0].textContent;
       const ActiveChartWrapper = mapChartsToWrapper.get(chartName);
 
@@ -37,25 +37,84 @@ function onBeforeChange(changes) {
         this.setDataAtCell(row, column, 0, 'onBeforeChange');
       }
 
-      chartWrapper.updateChartData(column, currentValue);
+      chartWrapper.updateChartData(row, column, currentValue, this);
     });
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  // eslint-disable-next-line no-new
-  new Handsontable(document.getElementById('root'), {
-    data: [
-      [29.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4],
-    ],
-    colHeaders: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-    rowHeaders: true,
-    type: 'numeric',
-    width: 650,
-    maxRows: 1,
-    stretchH: 'all',
-    allowInvalid: false,
-    afterInit: onAfterInit,
-    beforeChange: onBeforeChange,
+function onAfterCreateColumn(index) {
+  chartWrappers.forEach((chartWrapper) => {
+    chartWrapper.addNewTeam(this, index);
   });
+}
+
+function onAfterCreateRow(index) {
+  chartWrappers.forEach((chartWrapper) => {
+    chartWrapper.addNewGame(this, index);
+  });
+}
+
+function onAfterRemoveColumn(index) {
+  chartWrappers.forEach((chartWrapper) => {
+    chartWrapper.removeColumn(index, this);
+  });
+}
+
+function onAfterRemoveRow(index) {
+  chartWrappers.forEach((chartWrapper) => {
+    chartWrapper.removeRow(index, this);
+  });
+}
+
+const hot = new Handsontable(document.getElementById('root'), {
+  data: [
+    [120, 160, 80],
+    [130, 115, 95],
+    [150, 120, 60],
+  ],
+  colHeaders(index) {
+    return `Team ${index + 1}`;
+  },
+  rowHeaders(index) {
+    return `Game ${index + 1}`;
+  },
+  contextMenu: ['remove_row', 'remove_col'],
+  rowHeaderWidth: 100,
+  className: 'htCenter',
+  type: 'numeric',
+  width: 650,
+  maxRows: 5,
+  maxCols: 5,
+  stretchH: 'all',
+  allowInvalid: false,
+  afterInit: onAfterInit,
+  beforeChange: onBeforeChange,
+  afterCreateCol: onAfterCreateColumn,
+  afterCreateRow: onAfterCreateRow,
+  afterRemoveCol: onAfterRemoveColumn,
+  afterRemoveRow: onAfterRemoveRow,
+});
+
+controls.addEventListener('click', (event) => {
+  const isButton = event.target.nodeName.toLowerCase() === 'button';
+
+  if (isButton) {
+    const buttonValue = event.target.value;
+
+    if (buttonValue === 'addNewGame') {
+      const nextRow = hot.countRows() + 1;
+
+      if (nextRow <= hot.getSettings().maxRows) {
+        hot.alter('insert_row', nextRow);
+      }
+    }
+
+    if (buttonValue === 'addNewTeam') {
+      const nextColumn = hot.countCols() + 1;
+
+      if (nextColumn <= hot.getSettings().maxCols) {
+        hot.alter('insert_col', nextColumn);
+      }
+    }
+  }
 });
