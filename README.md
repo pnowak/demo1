@@ -13,14 +13,14 @@
 ## Installation
 
 ```
-git clone https://github.com/pnowak/handsontable-demos
-cd handsontable-demos
+git clone https://github.com/pnowak/demo1
+cd demo1
 npm install
 ```
 
 ### Building
 
-If you used npm to download the library, you should be good to go, but if you want to make a build yourself, go to the directory where `handsontable-demos` source is located and run:
+If you used npm to download the library, you should be good to go, but if you want to make a build yourself, go to the directory where `demo1` source is located and run:
 
 ```
 npm run build
@@ -65,10 +65,6 @@ hot.addHook('beforeChange', (changes) => {
 ```
 
 ## Examples
-- [handsontable-demos implementation](https://codepen.io/handsoncode/pen/PKgpaJ?editors=1010)
-- [Simple handsontable-demos implementation with Highcharts](https://codepen.io/handsoncode/pen/prBejL?editors=1010)
-- [Simple handsontable-demos implementation with AmCharts](https://codepen.io/handsoncode/pen/yorXbb?editors=1010)
-- [Simple handsontable-demos implementation with Chart.js](https://codepen.io/handsoncode/pen/dVbGKw)
 
 
 
